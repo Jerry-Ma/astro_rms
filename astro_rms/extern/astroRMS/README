@@ -1,0 +1,35 @@
+Matt Mechtley - Dec 2011 - https://github.com/mmechtley
+Python implementation of Mark Dickinson's acall iraf tasks for calculating
+RMS noise maps for astronomical images, taking into account pixel
+autocorrelation, noise variations in the weight map, and masking out the objects
+themselves.
+
+This module is not intended to have exact parameter parity with the MEDRMS iraf
+package. Rather, it is intended to provide similar functionality with a Pythonic
+interface.
+
+There are many optional parameters. See the docstrings, especially calc_rms()
+and select_region_slices(), for more information.
+
+Required External Packages:
+---------------------------
+numpy
+scipy
+astropy (for fits i/o)
+
+Installation:
+-------------
+Standard:
+python setup.py install
+
+Using a non-standard library location (e.g. Dropbox):
+python setup.py install --prefix=~/Dropbox/Python
+
+Example Usage:
+--------------
+import astroRMS
+
+sci_file = 'goodss_f160w_sci.fits'
+wht_file = scifile.replace('sci', 'wht')
+out_file = scifile.replace('sci', 'ivm')
+astroRMS.create_error_map(sci_file, wht_file, out_file)
