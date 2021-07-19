@@ -25,9 +25,16 @@ def main(args=None):
             help="Weight map."
             )
     parser.add_argument(
+            '-t', '--output_type',
+            required=False, default='ivm',
+            choices=['ivm', 'rms', 'var'],
+            help="Output data type. Default is inverse variance map (ivm).",
+            )
+    parser.add_argument(
             '-o', '--output',
             required=False, default=None,
-            help="Output file. The default is {sci_filename}_rms.fits",
+            help="Output file. The default is "
+                 "{sci_filename}_{output_type}.fits",
             )
     parser.add_argument(
             "-q", "--quiet",
@@ -58,7 +65,8 @@ def main(args=None):
     from .extern.astroRMS import astroRMS
 
     stats = astroRMS.create_error_map(
-            option.sci_file, option.wht_file, output, map_type='ivm',
+            option.sci_file, option.wht_file, output,
+            map_type=option.output_type,
             return_stats=True)
 
     log.info(f"Summary:\n{pyaml.dump(stats)}")
