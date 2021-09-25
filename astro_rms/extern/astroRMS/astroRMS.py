@@ -419,6 +419,7 @@ def select_region_slices(sci_data, badpix_mask, box_size=256, num_boxes=10):
 
 
 def create_error_map(sci_file, weight_file, out_file, map_type='ivm',
+                     region_slices=None,
                      bad_px_value=1e6, return_stats=False, **kwargs):
     """
     Create an autocorrelation-corrected error map for the given pair of science
@@ -428,6 +429,8 @@ def create_error_map(sci_file, weight_file, out_file, map_type='ivm',
     :param weight_file: Weight map file (for instance from astrodrizzle)
     :param out_file: Name of the output file
     :param map_type: Output error map type. One of ivm, var, or rms.
+    :param region_slices: If None, auto select region slices with
+        `select_region_slices`.
     :param bad_px_value: Output bad pixel value for map_type var or rms
     :param return_stats: If True, calculate and return statistics for the good
         pixels in the saved error map
@@ -452,9 +455,12 @@ def create_error_map(sci_file, weight_file, out_file, map_type='ivm',
     bpmask |= ~np.isfinite(sci_data)
 
     # Find appropriate regions to calculate noise properties
-    calc_slices = select_region_slices(sci_data, bpmask,
-                                       **select_region_kwargs)
-
+    if region_slices is not None:
+        calc_slices = region_slices
+        log.info("Use manually selected region slices")
+    else:
+        calc_slices = select_region_slices(sci_data, bpmask,
+                                           **select_region_kwargs)
     weight_to_ivm_scale = 0.0
     # Calculate weightmap to IVM scaling for each slice, average
     log.info('Autocorrelating regions for {}:'.format(sci_file))

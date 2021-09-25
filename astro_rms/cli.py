@@ -45,6 +45,11 @@ def main(args=None):
             help='Print the version info and exit.',
             version=version.version
             )
+    parser.add_argument(
+            '-r', '--region_file', default=None,
+            help='An optional DS9 region file to specify the region slices for'
+                 ' computing the noise autocorrelations.'
+            )
 
     option = parser.parse_args(args or sys.argv[1:])
 
@@ -62,11 +67,25 @@ def main(args=None):
         output = option.output
     log.info(f"output rms file: {output}")
 
+    # parse region file if specified
+
+    if option.region_file is not None:
+        log.info(f'load regions from {option.region_file}')
+        from .region_slices import load_region_slices
+        region_slices = load_region_slices(
+            option.region_file,
+            sci_file=option.sci_file,
+            region_file_fmt='ds9')
+        if not region_slices:
+            raise RuntimeError("No valid region slices found in region file.")
+    else:
+        region_slices = None
     from .extern.astroRMS import astroRMS
 
     stats = astroRMS.create_error_map(
             option.sci_file, option.wht_file, output,
             map_type=option.output_type,
+            region_slices=region_slices,
             return_stats=True)
 
     log.info(f"Summary:\n{pyaml.dump(stats)}")
